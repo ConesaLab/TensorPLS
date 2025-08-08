@@ -5,3 +5,4 @@
 .DS_Store
 .quarto
 inst/extdata/GCTOF_Data_Processed.csv
+.RDataTmp
