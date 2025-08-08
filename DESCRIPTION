@@ -1,0 +1,16 @@
+Package: NPLS-MultiomiX
+Type: Package
+Title: Omics analysis with NPLSDA
+Version: 0.1.0
+Authors@R: 
+    person("Alessandro", "Giordano", email = "alegiordano@unisa.it"", role = c("aut", "cre"))
+Description: A toolkit to read, preprocess and build tensors/matrices from omics data.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports:
+    yaml,
+    tools,
+    arrow
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
