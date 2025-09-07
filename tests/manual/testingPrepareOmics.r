@@ -8,17 +8,17 @@ cohort_path <- system.file("extdata", "CohortData.csv",
 
 #I have to extract colnames from dataframe
 raw_df         <- read.csv(raw_path, check.names = FALSE)
+raw_df
 head(raw_df)
 tmp            <- t(raw_df[-1, ])
 head(tmp)
 colnames(tmp)  <- tmp[1, ]
 colnames(tmp)
-feature_cols_vec <- colnames(tmp)[4:367]
-
+feature_cols_vec <- colnames(tmp)[4:367] 
 feature_cols_vec
 
 CohortData   <- read.csv(cohort_path, header = TRUE)
-
+CohortData
 subjects_vec <- CohortData$Group.Id[CohortData$Model.or.Validation == "Model"]
 
 subjects_vec
@@ -28,13 +28,103 @@ arr <- prepare_omics(
   id_col        = "Individual.Id",
   time_col      = "Time.to.IA",
   transpose     = "always",
-  legacy_na     = FALSE,
+  coercion_mode = "force_numeric",
   subjects      = subjects_vec,
   feature_cols  = feature_cols_vec,
   cohort        = cohort_path,
   cohort_id_col = "Group.Id",
   cohort_filter = "Model.or.Validation=='Model'"
 )
+
+save (arr,file = "/Users/alessandrogiordano/Desktop/AnaConesa/NPLSDAPackage_Support/prepareOmics/Obj/TEDDY/arrayGCTOFX.RData")
+save(arr,file = "/Users/alessandrogiordano/Desktop/AnaConesa/NPLSDAPackage_Support/prepareOmics/Obj/TEDDY/arrayGCTOFX.RData")
+dim(arr)
+
+dimnames(arr)[["Time"]]
+
+## What if i pass the same 
+arr1 <- prepare_omics(
+  data          = raw_path,
+  id_col        = "Individual.Id",
+  time_col      = "Time.to.IA",
+  transpose     = "always",
+  coercion_mode = "custom",
+  id_as         = "numeric",
+  time_as       = "numeric",
+  cohort        = cohort_path,
+  cohort_id_col = "Group.Id",
+  cohort_filter = "Model.or.Validation=='Model'",
+  feature_cols = feature_cols_vec
+)
+identical(arr,arr1)##are identical 
+
+dim(arr1)
+setdiff(arr,arr1)
+setdiff(arr1,arr)
+summary(arr)
+summary(arr1)
+###Case with   id_as         = "numeric", and   time_as       = "character",
+arr2 <- prepare_omics(
+  data          = raw_path,
+  id_col        = "Individual.Id",
+  time_col      = "Time.to.IA",
+  transpose     = "always",
+  coercion_mode = "custom",
+  id_as         = "numeric",
+  time_as       = "character",
+  cohort        = cohort_path,
+  cohort_id_col = "Group.Id",
+  cohort_filter = "Model.or.Validation=='Model'",
+  feature_cols = feature_cols_vec
+)
+
+head(arr2)
+dim(arr2)
+dimnames(arr2)[["Time"]]
+
+arr3 <- prepare_omics(
+  data          = raw_path,
+  id_col        = "Individual.Id",
+  time_col      = "Time.to.IA",
+  transpose     = "auto",
+  coercion_mode = "custom",
+  id_as         = "numeric",
+  time_as       = "numeric",
+  cohort        = cohort_path,
+  cohort_id_col = "Group.Id",
+  cohort_filter = "Model.or.Validation=='Model'",
+  feature_cols = feature_cols_vec
+)
+
+dim(arr3)
+
+head(arr1)
+dim(arr1)
+setdiff(feature)
+length(feature_cols_vec)
+
+prepare_omics()
+arr[,,7]
+
+######
+arr1 <- prepare_omics(
+  data          = raw_path,
+  id_col        = "Individual.Id",
+  time_col      = "Time.to.IA",
+  transpose     = "always",
+  legacy_na     = FALSE,
+  numeric_coercion = FALSE,
+  subjects      = subjects_vec,
+  feature_cols  = feature_cols_vec,
+  cohort        = cohort_path,
+  cohort_id_col = "Group.Id",
+  cohort_filter = "Model.or.Validation=='Model'"
+)
+
+dim(arr1)
+identical(arr,arr1)
+ar
+dim(arr)
 
 head(arr[,3,5])
 
@@ -91,6 +181,8 @@ length(subjects_vec)
 
 
 
+##### Creating array for STATEGRA DATASET #########
+
 
 
 
@@ -98,6 +190,7 @@ library(tibble)
 library(tidyr)
 library(dplyr)
 counts = read.csv("/Users/alessandrogiordano/Downloads/RNA_seq/STATegra.RNAseq.allSamples.counts.csv")
+
 # 1) counts: righe=gene (rownames), colonne=sample (colnames)
 genes   <- counts$GeneName
 genes
@@ -113,44 +206,163 @@ meta <- tibble(sample_id = samples) %>%
     subject_id   = paste0(replicate_id, "_", condition),
     condition    = factor(condition, levels = c("Ctr","Ik"))
   )
+meta
 counts_mat <- counts %>% 
   column_to_rownames(var = "GeneName")  # ora rownames(counts_mat) = ENSMUSG...
+counts_mat
 # Verifica:
-stopifnot(all(feature_cols %in% rownames(counts_mat)))# --- transpose counts in "samples × genes" conservando i nomi dei geni ---
+stopifnot(all(genes %in% rownames(counts_mat)))# --- transpose counts in "samples × genes" conservando i nomi dei geni ---
 sxg <- as.data.frame(t(counts_mat), check.names = FALSE)
-dim(sxg)    
-
 names(sxg)[1:5]
 
+dim(sxg)    
+rownames(sxg)
+names(sxg)[1:5]
+is.null(rownames(sxg))  # FALSE means you do have rownames
 sxg$sample_id <- rownames(sxg)
-
+sum(is.na(long_df))
 # 4) Unisci con i tuoi metadati
 long_df <- meta %>% 
   left_join(sxg, by = "sample_id")
 
+long_df
+head(meta)
+sxg[1:4]
+meta
+head(sxg)
+colnames(sxg)
+long_df
 # controllo: i nomi colonna devono includere i geneID
-stopifnot(all(feature_cols %in% names(long_df)))
-# --- unione metadati + features ---
-
-
+stopifnot(all(genes %in% names(long_df)))
+tic()
 # 7) Costruisci il tensor Subject × Feature × Time con le TUE funzioni
 arr <- prepare_omics(
-  data            = long_df %>% select(subject_id, time, all_of(feature_cols)),
+  data            = long_df %>% select(subject_id, time, all_of(genes)),
   id_col          = "subject_id",
   time_col        = "time",
-  tensor          = TRUE,
   transpose       = "never",
-  numeric_coercion= FALSE,   # già numerico, ma fa comodo
-  legacy_na       = FALSE,
+  coercion_mode = "custom",
+  id_as = "character",
+  time_as = "numeric",# già numerico, ma fa comodo
   min_timepoints  = 2,      # coerente con il filtro
-  feature_cols    = feature_cols
+  feature_cols    = genes
 )
 dim(arr)
-arr[,1,1]
+
+toc()
+dimnames(arr)[["Time"]]
+summary(arr)
+save(arr,file = "/Users/alessandrogiordano/Desktop/AnaConesa/NPLSDAPackage_Support/prepareOmics/Obj/Stategra/arrayStategraGE.RData")
+
+#################################### END OF ARRAY CREATED FROM STATEGRA GENE EXPRESSION DATASET
+arr
+
+#### TESTING ON GE DATASET ###
+
+raw_df <- read.csv("/Users/alessandrogiordano/Desktop/TEDDY/GeneExpression/GeneExpressionDataProcessed.csv", check.names = FALSE)
+
+tmp    <- t(raw_df[-1, ])
+colnames(tmp) <- tmp[1, ]
+
+feature_cols_vec <- colnames(tmp)[4:length(colnames(tmp))]
+length(feature_cols_vec)
+
+tic("Exec Time prepareOmics")
+arr <- prepare_omics(data      = "/Users/alessandrogiordano/Desktop/TEDDY/GeneExpression/GeneExpressionDataProcessed.csv",
+                     id_col    = "Individual.Id",
+                     time_col  = "Time.to.IA",
+                     transpose = "always",
+                     coercion_mode ="custom",
+                     id_as = "numeric",
+                     time_as = "numeric",
+                     subjects  = subjects_vec,
+                     feature_cols = feature_cols_vec,
+                     cohort    = "/Users/alessandrogiordano/Desktop/TEDDY/SupplementaryData/GeneExpression/CohortData.csv",
+                     cohort_id_col = "Group.Id",
+                     cohort_filter = "Model.or.Validation=='Model'")
+
 dim(arr)
+summary(arr)
+arr[1,1,]
+toc("Exec Time prepareOmics")
+arr(,,,)
+arr
+head(arr)
+arrayGCTOFX1 = arrayGCTOFX
+summary(arrayGCTOFX)
+summary(arrayGCTOFX1)
+toc
+dim(arr)
+save(arr, file = "/Users/alessandrogiordano/Desktop/AnaConesa/NPLSDAPackage_Support/prepareOmics/Obj/TEDDY/arrayGE.RData")
+#### TESTING ON GE DATASET ###
 
 
+#### TESTING oN LIPIDOMICS###
+raw_dfPositive <- read.csv("/Users/alessandrogiordano/Desktop/TEDDY/Metabolomics/PositiveLipidomicsDataProcessed.csv", check.names = FALSE)
+tmpPositive <- t (raw_dfPositive[-1,])
+colnames(tmpPositive) <- tmpPositive[1, ]
 
+feature_cols_vecPositive <- setdiff(
+  colnames(tmpPositive),
+  c("Individual.Id","Sample.Individual.Id","Age.in.Months","Time.to.IA")
+)
+install.packages("tictoc")
+library(tictoc)
+tic("Exec Time prepareOmics")
+arrayPosLipXFunction <- prepare_omics(data      = "/Users/alessandrogiordano/Desktop/TEDDY/Metabolomics/PositiveLipidomicsDataProcessed.csv",
+                                      id_col    = "Individual.Id",
+                                      time_col  = "Time.to.IA",
+                                      transpose = "always",
+                                      coercion_mode = "force_numeric",
+                                      id_as = "numeric",
+                                      time_as = "numeric",
+                                      subjects  = subjects_vec,
+                                      feature_cols = feature_cols_vecPositive,
+                                      cohort = "/Users/alessandrogiordano/Desktop/TEDDY/SupplementaryData/GeneExpression/CohortData.csv",
+                                      cohort_id_col = "Group.Id",
+                                      cohort_filter = "Model.or.Validation=='Model'"
+)
+dim(arrayPosLipXFunction)
+save(arrayPosLipXFunction,file = "/Users/alessandrogiordano/Desktop/AnaConesa/NPLSDAPackage_Support/prepareOmics/Obj/TEDDY/arrayPosLipdmx.Rdata")
+toc()
+dim(arrayPosLipXFunction)
+
+####### NEGATIVE LIPIDOMICS ###
+raw_dfNegative <- read.csv("/Users/alessandrogiordano/Desktop/TEDDY/Metabolomics/Negative_Lipidomics_Data_Processed.csv", check.names = FALSE)
+tmpNegative    <- t(raw_dfNegative[-1, ])
+colnames(tmpNegative) <- tmpNegative[1, ]
+
+feature_cols_vecNegative <- setdiff(
+  colnames(tmpNegative),
+  c("Individual.Id", "Sample.Individual.Id", "Age.in.Months", "Time.to.IA")
+)
+arrNegFunct <- prepare_omics(data      = "/Users/alessandrogiordano/Desktop/TEDDY/Metabolomics/Negative_Lipidomics_Data_Processed.csv",
+                             id_col    = "Individual.Id",
+                             time_col  = "Time.to.IA",
+                             transpose = "always",
+                             coercion_mode = "custom",
+                             id_as = "numeric",
+                             time_as ="numeric",
+                             subjects  = subjects_vec,
+                             feature_cols = feature_cols_vecNegative,
+                             cohort    = "/Users/alessandrogiordano/Desktop/TEDDY/SupplementaryData/GeneExpression/CohortData.csv",
+                             cohort_id_col = "Group.Id",
+                             cohort_filter = "Model.or.Validation=='Model'")
+
+#Size
+dim(arrNegFunct)
+save(arrNegFunct, file = "/Users/alessandrogiordano/Desktop/AnaConesa/NPLSDAPackage_Support/prepareOmics/Obj/TEDDY/arrNegLip.RData")
+
+#### NEGATIVE LIPIDOMICS 
+
+summary(arrayGCTOFX)
+summary(arrayPosLipX)
+summar(arr)
+dimnames(arr)[["Time"]]
+
+head(arr)
+summary(arr)
+arr[,,4]
 ## ====== 0) Utility comuni ======
 subj <- dimnames(arr)$Subject
 stopifnot(length(subj) == 6)

@@ -1,80 +1,69 @@
-#' Prepare omics data for downstream analysis 
+#' Prepare omics data for downstream analysis (3D tensor)
 #'
-#' Reads raw tabular data (long or wide), applies a series of
-#' preprocessing steps (optional transposition, numeric coercion, cohort
-#' filtering, duplicate handling, etc.) and returns either
-#' *-* a three-dimensional **tensor**
-#'    (*Subject × Feature × Time*) *or*
-#' *-* a two-dimensional **matrix**
-#'    (*Subject × Feature*), depending on the presence of a time column or
-#'   the `tensor` flag.
+#' Reads tabular data (long or wide), applies preprocessing steps (optional
+#' transpose, type/NA normalization, cohort filtering, duplicate handling),
+#' and returns a 3-D numeric tensor \emph{(Subject × Feature × Time)}.
 #'
-#' @section Workflow in brief:
+#' The function always builds a 3-D tensor; if `time_col` is missing or results
+#' in zero valid time points after filtering/normalization, an explicit error is
+#' raised.
+#'
+#' @section Workflow (brief):
 #' \enumerate{
-#'   \item \strong{Input loading}\\
-#'         `data` and, if applicable, `cohort` may be in-memory objects or
-#'         file paths (`csv`, `tsv`, `rds`, `feather`, `parquet`).
-#'   \item \strong{Transpose (optional)} via \code{.transpose_if_needed()}.
-#'   \item \strong{Numeric coercion} (legacy vs.\ modern rules).
-#'   \item \strong{Cohort filter} applied on an auxiliary table.
-#'   \item \strong{Minimum time-points} filter.
-#'   \item \strong{Tensor / matrix creation} through
-#'         \code{.build_tensor()}.
+#'   \item Input loading via \code{.read_or_pass()}.
+#'   \item Optional transpose via \code{.transpose_if_needed()}.
+#'   \item Type/NA normalization via \code{normalize_types_by_spec()} controlled by
+#'         \code{coercion_mode} (and, for \code{"custom"}, \code{id_as}/\code{time_as}/\code{features_numeric}).
+#'   \item Cohort filter (\code{cohort}, \code{cohort_filter}); ID type is aligned across tables.
+#'   \item Minimum time-points filter.
+#'   \item Guardrail: explicit error if the time axis would be empty.
+#'   \item Tensor creation via \code{.build_tensor()}.
 #' }
 #'
 #' @param data Data.frame, matrix/array, or a readable file path.
-#' @param id_col Character; name of the subject identifier column.
-#' @param time_col Character; name of the time-point column. If `NULL`
-#'   or not present in `data`, a 2-D matrix is produced.
-#' @param transpose One of `"auto"`, `"never"`, `"always"`; passed to
+#' @param id_col Character; subject identifier column name.
+#' @param time_col Character; time-point column name (required).
+#' @param transpose One of \code{"auto"}, \code{"never"}, \code{"always"}; passed to
 #'   \code{.transpose_if_needed()}.
 #' @param header_in_row Logical; used only when transposing.
-#' @param cohort Optional data.frame or file path containing metadata.
-#' @param cohort_id_col Column in `cohort` matching `id_col`.
+#' @param cohort Optional data.frame or file path with metadata.
+#' @param cohort_id_col Column in \code{cohort} matching \code{id_col}.
 #' @param cohort_filter Character scalar; an R expression evaluated within
-#'   `cohort` to subset rows.
+#'   \code{cohort} to subset rows.
 #' @param min_timepoints Integer; keep only subjects observed at least this
 #'   many times.
-#' @param tensor Logical; if `FALSE`, return the (filtered) data.frame
-#'   rather than tensor/matrix.
 #' @param exclude_cols Columns to drop entirely when building features.
 #' @param feature_cols Character vector; explicit feature columns to keep.
-#'   Overrides `exclude_cols`.
-#' @param subjects Optional character vector defining the order (and subset)
-#'   of subjects in the tensor/matrix.
-#' @param time_points Optional vector defining the order (and subset) of
-#'   time points in the tensor.
-#' @param numeric_coercion Logical; if `TRUE` attempt to coerce all columns
-#'   to numeric (ignored when `legacy_na = TRUE`).
-#' @param legacy_na Logical; reproduces historical NA-handling rules and
-#'   forces \code{deduplicate = "first"}.
-#' @param deduplicate Strategy used when duplicate subject/time pairs are
-#'   encountered: `"first"`, `"last"`, or `"mean"`.
+#'   Overrides \code{exclude_cols}.
+#' @param subjects Optional character vector defining order (and subset) of
+#'   subjects in the tensor.
+#' @param time_points Optional vector defining order (and subset) of time points
+#'   in the tensor.
+#' @param coercion_mode One of \code{"force_numeric"}, \code{"force_character"}, \code{"custom"}.
+#'   \itemize{
+#'     \item \code{"force_numeric"}: ID/TIME coerced to numeric; features numeric; forces \code{deduplicate="first"}.
+#'     \item \code{"force_character"}: ID/TIME as character; features not forced.
+#'     \item \code{"custom"}: use \code{id_as}, \code{time_as}, \code{features_numeric}.
+#'   }
+#' @param id_as (custom only) One of \code{"numeric"}, \code{"character"}.
+#' @param time_as (custom only) One of \code{"numeric"}, \code{"character"}, \code{"date"}.
+#' @param features_numeric Logical; if \code{TRUE} (default), coerce features to numeric.
+#' @param deduplicate Strategy when duplicate subject/time pairs are found:
+#'   \code{"first"}, \code{"last"}, or \code{"mean"}.
 #'
-#' @return
-#' \itemize{
-#'   \item \strong{3-D numeric array} (Subj × Feat × Time) if
-#'         \code{tensor = TRUE} and a valid `time_col` is given;
-#'   \item \strong{2-D numeric matrix} (Subj × Feat) if
-#'         \code{tensor = TRUE} but no time column is available;
-#'   \item \strong{data.frame} after filtering/coercion if
-#'         \code{tensor = FALSE}.
-#' }
-#'
+#' @return 3-D numeric array (Subject × Feature × Time).
 #'
 #' @examples
-#' ## Minimal runnable example using package-internal demo files
 #' raw_path    <- system.file("extdata", "GCTOF_Data_Processed.csv",
 #'                            package = "NPLS-Multiomi")
 #' cohort_path <- system.file("extdata", "CohortData.csv",
 #'                            package = "NPLS-Multiomi")
-#'
 #' arr <- prepare_omics(
 #'   data          = raw_path,
 #'   id_col        = "Individual.Id",
 #'   time_col      = "Time.to.IA",
 #'   transpose     = "always",
-#'   legacy_na     = TRUE,
+#'   coercion_mode = "force_numeric",
 #'   cohort        = cohort_path,
 #'   cohort_id_col = "Group.Id",
 #'   cohort_filter = "Model.or.Validation=='Model'"
@@ -82,77 +71,110 @@
 #' dim(arr)
 #'
 #' @export
-#' @importFrom yaml read_yaml
-#' @importFrom arrow read_feather read_parquet
-#' 
-#' 
-#' 
 prepare_omics <- function(
     data,
     id_col,
-    time_col           = NULL,
+    time_col,
     transpose          = "auto",
     header_in_row      = TRUE,
     cohort             = NULL,
     cohort_id_col      = id_col,
     cohort_filter      = NULL,
     min_timepoints     = NULL,
-    tensor             = TRUE,
     exclude_cols       = NULL,
     feature_cols       = NULL,
     subjects           = NULL,
     time_points        = NULL,
-    numeric_coercion   = TRUE,
-    legacy_na          = FALSE,
+    coercion_mode      = c("force_numeric","force_character","custom"),
+    id_as              = c("numeric","character"),
+    time_as            = c("numeric","character","date"),
+    features_numeric   = TRUE,
     deduplicate        = c("first","last","mean")) {
   
-
-  deduplicate <- match.arg(deduplicate)
+  coercion_mode <- match.arg(coercion_mode)
+  id_as         <- match.arg(id_as)
+  time_as       <- match.arg(time_as)
+  deduplicate   <- match.arg(deduplicate)
+  if (coercion_mode == "force_numeric") deduplicate <- "first"
   
-  # About I/O & transpose
+  # (1) I/O + transpose
   obj <- .read_or_pass(data)
   if (is.matrix(obj) || (is.array(obj) && length(dim(obj)) == 3L)) return(obj)
-  if (!is.data.frame(obj)) stop("Unsupported input type: ", class(obj))
-  
+  if (!is.data.frame(obj)) stop("Unsupported input type: ", paste(class(obj), collapse = ", "))
   obj <- .transpose_if_needed(obj, transpose, header_in_row)
-  
-  # About (2) Numeric coercion
-  if (legacy_na) {
-    obj[[id_col]] <- suppressWarnings(as.numeric(as.character(obj[[id_col]])))
-    if (!is.null(time_col) && time_col %in% names(obj))
-      obj[[time_col]] <- suppressWarnings(as.numeric(as.character(obj[[time_col]])))
-  } else if (numeric_coercion) {
-    obj[] <- lapply(obj, function(x) suppressWarnings(as.numeric(as.character(x))))
+  # Immediate Errore if time Point is missing
+  if (is.null(time_col) || !(time_col %in% names(obj))) {
+    stop("`time_col` is missing or not present in the data; required for a 3-D tensor.")
   }
+  # (2) Type/NA normalization
+  obj <- normalize_types_by_spec(
+    df               = obj,
+    id_col           = id_col,
+    time_col         = time_col,
+    feature_cols     = feature_cols,
+    coercion_mode    = coercion_mode,
+    id_as            = id_as,
+    time_as          = time_as,
+    features_numeric = features_numeric
+  )
   
-  # About (3) Cohort filter
+  # (3) Cohort filter (align ID types consistently across tables)
   if (!is.null(cohort)) {
     cdf <- .read_or_pass(cohort)
-    if (!is.data.frame(cdf)) stop("Cohort must be data.frame or file.")
+    if (!is.data.frame(cdf)) stop("Cohort must be a data.frame or readable file.")
     if (cohort_id_col %in% names(cdf))
       names(cdf)[names(cdf) == cohort_id_col] <- id_col
     if (!is.null(cohort_filter))
       cdf <- cdf[with(cdf, eval(parse(text = cohort_filter))), ]
-    obj <- obj[obj[[id_col]] %in% cdf[[id_col]], ]
+    
+    # Align ID type for the %in% join
+    join_as_numeric <- FALSE
+    if (coercion_mode == "force_numeric") {
+      join_as_numeric <- TRUE
+    } else if (coercion_mode == "custom") {
+      join_as_numeric <- (id_as == "numeric")
+    } # force_character -> FALSE
+    
+    if (join_as_numeric) {
+      obj[[id_col]] <- suppressWarnings(as.numeric(as.character(obj[[id_col]])))
+      cdf[[id_col]] <- suppressWarnings(as.numeric(as.character(cdf[[id_col]])))
+    } else {
+      obj[[id_col]] <- as.character(obj[[id_col]])
+      cdf[[id_col]] <- as.character(cdf[[id_col]])
+    }
+    idx <- match(obj[[id_col]], cdf[[id_col]])
+    obj <- obj[!is.na(idx), , drop = FALSE]
+    if (nrow(obj) == 0L || !any(!is.na(obj[[time_col]]))) {
+      stop("No valid time points after filtering/normalization; check ID/TIME types, cohort, and coercion settings.")
+    }
+    
   }
   
-  # About (4) min_timepoints 
+  # (4) Minimum time-points
   if (!is.null(min_timepoints) && !is.null(time_col) && time_col %in% names(obj)) {
-    keep <- names(which(table(obj[[id_col]]) >= min_timepoints))
+    distinct_t_by_id <- tapply(obj[[time_col]], obj[[id_col]],
+                               function(x) length(unique(x)))
+    keep <- names(distinct_t_by_id)[distinct_t_by_id >= min_timepoints]
     obj  <- obj[obj[[id_col]] %in% keep, ]
   }
   
-  # (5) Tensor / Matrix
-  if (!tensor) return(obj)
-  
+  # STOPP THATTTT---If Time points columsn doesn't exist 
+  if (is.null(time_col) || !(time_col %in% names(obj))) {
+    stop("`time_col` is missing or not present in the data; required for a 3-D tensor.")
+  }
+  tp_vals <- unique(obj[[time_col]][!is.na(obj[[time_col]])])
+  if (nrow(obj) == 0L || length(tp_vals) == 0L) {
+    stop("No valid time points after filtering/normalization; check ID/TIME types, cohort, and coercion settings.")
+  }
+  # (5) Build tensor
+  excl <- unique(c(id_col, time_col, if (is.null(exclude_cols)) character() else exclude_cols))
   .build_tensor(obj,
-                id_col       = id_col,
-                time_col     = time_col,
-                exclude_cols = if (is.null(exclude_cols)) c(id_col, time_col) else exclude_cols,
+                id_col = id_col,
+                time_col = time_col,
+                exclude_cols = excl,
                 feature_cols = feature_cols,
-                subjects     = subjects,
-                time_points  = time_points,
-                legacy_na    = legacy_na,
-                deduplicate  = deduplicate)
+                subjects = subjects,
+                time_points = time_points,
+                deduplicate = deduplicate
+  )
 }
-

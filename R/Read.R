@@ -15,7 +15,6 @@
 #' .read_or_pass("example.csv")
 #'
 #' @importFrom tools file_ext
-#' @importFrom yaml read_yaml
 #' @importFrom arrow read_feather read_parquet
 #' @keywords internal
 #' @rdname helpers-internal

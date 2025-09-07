@@ -2,46 +2,42 @@
 % Please edit documentation in R/Tensor.R
 \name{prepare_omics}
 \alias{prepare_omics}
-\title{Prepare omics data for downstream modelling}
+\title{Prepare omics data for downstream analysis (3D tensor)}
 \usage{
 prepare_omics(
-  config = NULL,
   data,
   id_col,
-  time_col = NULL,
+  time_col,
   transpose = "auto",
   header_in_row = TRUE,
   cohort = NULL,
   cohort_id_col = id_col,
   cohort_filter = NULL,
   min_timepoints = NULL,
-  tensor = TRUE,
   exclude_cols = NULL,
   feature_cols = NULL,
   subjects = NULL,
   time_points = NULL,
-  numeric_coercion = TRUE,
-  legacy_na = FALSE,
+  coercion_mode = c("force_numeric", "force_character", "custom"),
+  id_as = c("numeric", "character"),
+  time_as = c("numeric", "character", "date"),
+  features_numeric = TRUE,
   deduplicate = c("first", "last", "mean")
 )
 }
 \arguments{
-\item{config}{Either a YAML file path or a named list whose entries act
-as default arguments. Optional.}
-
 \item{data}{Data.frame, matrix/array, or a readable file path.}
 
-\item{id_col}{Character; name of the subject identifier column.}
+\item{id_col}{Character; subject identifier column name.}
 
-\item{time_col}{Character; name of the time-point column. If \code{NULL}
-or not present in \code{data}, a 2-D matrix is produced.}
+\item{time_col}{Character; time-point column name (required).}
 
 \item{transpose}{One of \code{"auto"}, \code{"never"}, \code{"always"}; passed to
 \code{.transpose_if_needed()}.}
 
 \item{header_in_row}{Logical; used only when transposing.}
 
-\item{cohort}{Optional data.frame or file path containing metadata.}
+\item{cohort}{Optional data.frame or file path with metadata.}
 
 \item{cohort_id_col}{Column in \code{cohort} matching \code{id_col}.}
 
@@ -51,89 +47,75 @@ or not present in \code{data}, a 2-D matrix is produced.}
 \item{min_timepoints}{Integer; keep only subjects observed at least this
 many times.}
 
-\item{tensor}{Logical; if \code{FALSE}, return the (filtered) data.frame
-rather than tensor/matrix.}
-
 \item{exclude_cols}{Columns to drop entirely when building features.}
 
 \item{feature_cols}{Character vector; explicit feature columns to keep.
 Overrides \code{exclude_cols}.}
 
-\item{subjects}{Optional character vector defining the order (and subset)
-of subjects in the tensor/matrix.}
+\item{subjects}{Optional character vector defining order (and subset) of
+subjects in the tensor.}
 
-\item{time_points}{Optional vector defining the order (and subset) of
-time points in the tensor.}
+\item{time_points}{Optional vector defining order (and subset) of time points
+in the tensor.}
 
-\item{numeric_coercion}{Logical; if \code{TRUE} attempt to coerce all columns
-to numeric (ignored when \code{legacy_na = TRUE}).}
+\item{coercion_mode}{One of \code{"force_numeric"}, \code{"force_character"}, \code{"custom"}.
+\itemize{
+\item \code{"force_numeric"}: ID/TIME coerced to numeric; features numeric; forces \code{deduplicate="first"}.
+\item \code{"force_character"}: ID/TIME as character; features not forced.
+\item \code{"custom"}: use \code{id_as}, \code{time_as}, \code{features_numeric}.
+}}
 
-\item{legacy_na}{Logical; reproduces historical NA-handling rules and
-forces \code{deduplicate = "first"}.}
+\item{id_as}{(custom only) One of \code{"numeric"}, \code{"character"}.}
 
-\item{deduplicate}{Strategy used when duplicate subject/time pairs are
-encountered: \code{"first"}, \code{"last"}, or \code{"mean"}.}
+\item{time_as}{(custom only) One of \code{"numeric"}, \code{"character"}, \code{"date"}.}
+
+\item{features_numeric}{Logical; if \code{TRUE} (default), coerce features to numeric.}
+
+\item{deduplicate}{Strategy when duplicate subject/time pairs are found:
+\code{"first"}, \code{"last"}, or \code{"mean"}.}
 }
 \value{
-\itemize{
-\item \strong{3-D numeric array} (Subj × Feat × Time) if
-\code{tensor = TRUE} and a valid \code{time_col} is given;
-\item \strong{2-D numeric matrix} (Subj × Feat) if
-\code{tensor = TRUE} but no time column is available;
-\item \strong{data.frame} after filtering/coercion if
-\code{tensor = FALSE}.
-}
+3-D numeric array (Subject × Feature × Time).
 }
 \description{
-Reads raw tabular data (long or wide), applies a series of
-preprocessing steps (optional transposition, numeric coercion, cohort
-filtering, duplicate handling, etc.) and returns either
-\emph{-} a three-dimensional \strong{tensor}
-(\emph{Subject × Feature × Time}) \emph{or}
-\emph{-} a two-dimensional \strong{matrix}
-(\emph{Subject × Feature}), depending on the presence of a time column or
-the \code{tensor} flag.
+Reads tabular data (long or wide), applies preprocessing steps (optional
+transpose, type/NA normalization, cohort filtering, duplicate handling),
+and returns a 3-D numeric tensor \emph{(Subject × Feature × Time)}.
 }
-\section{Workflow in brief}{
+\details{
+The function always builds a 3-D tensor; if \code{time_col} is missing or results
+in zero valid time points after filtering/normalization, an explicit error is
+raised.
+}
+\section{Workflow (brief)}{
 
 \enumerate{
-\item \strong{YAML preset}\\
-If \code{config} is supplied (file path or list) its values become
-defaults; arguments given explicitly in the function call
-always override the YAML.
-\item \strong{Input loading}\\
-\code{data} and, if applicable, \code{cohort} may be in-memory objects or
-file paths (\code{csv}, \code{tsv}, \code{rds}, \code{feather}, \code{parquet}).
-\item \strong{Transpose (optional)} via \code{.transpose_if_needed()}.
-\item \strong{Numeric coercion} (legacy vs.\ modern rules).
-\item \strong{Cohort filter} applied on an auxiliary table.
-\item \strong{Minimum time-points} filter.
-\item \strong{Tensor / matrix creation} through
-\code{.build_tensor()}.
+\item Input loading via \code{.read_or_pass()}.
+\item Optional transpose via \code{.transpose_if_needed()}.
+\item Type/NA normalization via \code{normalize_types_by_spec()} controlled by
+\code{coercion_mode} (and, for \code{"custom"}, \code{id_as}/\code{time_as}/\code{features_numeric}).
+\item Cohort filter (\code{cohort}, \code{cohort_filter}); ID type is aligned across tables.
+\item Minimum time-points filter.
+\item Guardrail: explicit error if the time axis would be empty.
+\item Tensor creation via \code{.build_tensor()}.
 }
 }
 
 \examples{
-## Minimal runnable example using package-internal demo files
 raw_path    <- system.file("extdata", "GCTOF_Data_Processed.csv",
-                           package = "myOmics")
+                           package = "NPLS-Multiomi")
 cohort_path <- system.file("extdata", "CohortData.csv",
-                           package = "myOmics")
-
+                           package = "NPLS-Multiomi")
 arr <- prepare_omics(
   data          = raw_path,
   id_col        = "Individual.Id",
   time_col      = "Time.to.IA",
   transpose     = "always",
-  legacy_na     = TRUE,
+  coercion_mode = "force_numeric",
   cohort        = cohort_path,
   cohort_id_col = "Group.Id",
   cohort_filter = "Model.or.Validation=='Model'"
 )
 dim(arr)
 
-}
-\seealso{
-\code{\link{load_and_prepare_omics_data}} for a high-level
-TEDDY-specific wrapper.
 }

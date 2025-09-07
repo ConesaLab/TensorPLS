@@ -1,4 +1,4 @@
-# ---------------------------------------------------------------------------
+# --
 #' Conditionally transpose a data.frame
 #'
 #' Decides—according to `mode` and the first column contents—whether to
@@ -32,7 +32,9 @@
                       FALSE
                     }
                     else{
+                    #go to extract 1st column
                     fc <- df[[1]]
+                    #CONTINUE if 1st column is NOT numeric ("gene1, gene2") AND NOT more values than number of rows
                     !is.numeric(fc) && length(unique(fc)) == nrow(df)
                     }
                   })
