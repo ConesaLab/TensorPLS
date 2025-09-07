@@ -4,8 +4,8 @@ Title: an R package for exploring patterns in three-way omics data using N-PLS-D
 Version: 0.1.0
 Authors@R: 
     person("Alessandro", "Giordano", email = "alegiordano@unisa.it", role = c("aut", "cre"))
-Description: Toolkit for reading, preprocessing, and constructing tensors 
-from omics data, with modeling and feature selection based on Partial Least Squares (PLS) algorithms.
+Description: Toolkit for reading, preprocessing, and constructing tensors from omics data,
+    with modeling and feature selection based on Partial Least Squares (PLS) algorithms.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
