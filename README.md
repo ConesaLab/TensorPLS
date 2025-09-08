@@ -7,7 +7,7 @@ An R package for exploring patterns in three-way omics data using N-PLS-DA.
 ## Why TensorPLS?
 
 Multi-omics and longitudinal studies often generate data with a natural **multi-way structure**  
-(e.g., *subjects × features × time* or *subjects × features × omics blocks*).  
+(e.g., *subjects × features × time*).  
 
 
 ---
