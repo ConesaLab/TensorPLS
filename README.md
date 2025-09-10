@@ -46,5 +46,5 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
 
 3) A workflow diagram
 <p align="center">
-  <img src="man/figures/" alt="Pipeline overview" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="600">
 </p>
