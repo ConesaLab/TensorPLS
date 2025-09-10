@@ -2,7 +2,7 @@
 % Please edit documentation in R/plsLoadings.R
 \name{compute_npls_loadings}
 \alias{compute_npls_loadings}
-\title{Compute NPLS Loadings (Unified Algorithm)}
+\title{Compute NPLS Loadings}
 \usage{
 compute_npls_loadings(X, Y, ncomp = 3, outcome.Y = NULL)
 }

@@ -2,7 +2,9 @@
 % Please edit documentation in R/venn.R
 \name{draw_venn_diagram}
 \alias{draw_venn_diagram}
-\title{Draw Beautiful Venn Diagrams for Feature Sets}
+\title{This function creates Venn diagrams to visualize overlaps between
+different sets of features (genes, metabolites, or other biological entities).
+Apply this function to see for example commons features between different VIPs objects can be useful}
 \usage{
 draw_venn_diagram(
   feature_lists,
@@ -21,8 +23,9 @@ Default is c("orange", "blue", "red", "green", "purple").}
 Displays the Venn diagram and invisibly returns the plot grobs.
 }
 \description{
-This function creates beautiful Venn diagrams to visualize overlaps between
+This function creates Venn diagrams to visualize overlaps between
 different sets of features (genes, metabolites, or other biological entities).
+Apply this function to see for example commons features between different VIPs objects can be useful
 }
 \examples{
 # Example with gene sets

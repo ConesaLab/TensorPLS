@@ -2,10 +2,7 @@
 % Please edit documentation in R/plot2DPer.r
 \name{plot_vip2d_with_groups_nogaps}
 \alias{plot_vip2d_with_groups_nogaps}
-\title{Plot Top-N VIP2D with Case/Control strip and permutation p-values
-Draws, for each timepoint, a lollipop chart of Top-N VIP2D (left) and a two-column
-Case/Control strip (right). Optionally computes \strong{permutation-based p-values} for
-Top-N inclusion and marks significant points on the lollipop.}
+\title{Plot Top-N VIP2D with Case/Control strip and permutation p-values}
 \usage{
 plot_vip2d_with_groups_nogaps(
   obj,
@@ -27,106 +24,12 @@ plot_vip2d_with_groups_nogaps(
   fit_fun = NULL,
   seed = NULL,
   workers = NULL,
-  cap_blas_threads = TRUE,
+  cap_blas_threads = FALSE,
+  parallel = c("auto", "off"),
+  future_packages = NULL,
   ...
 )
-
-plot_vip2d_with_groups_nogaps(
-  obj,
-  X,
-  groups,
-  comp = 1,
-  top_n = 15,
-  threshold = 1,
-  sep = "_",
-  mode = c("winner", "effect"),
-  case_level = NULL,
-  case_col = "#D55E00",
-  control_col = "#009E73",
-  loser_alpha = 0.25,
-  Y = NULL,
-  ncomp = NULL,
-  permute_R = 0,
-  alpha_perm = 0.05,
-  fit_fun = NULL,
-  seed = NULL,
-  workers = NULL,
-  cap_blas_threads = TRUE,
-  ...
-)
-}
-\arguments{
-\item{obj}{Either the full \code{nplsda_vips} object (with \verb{$VIP2D}) or a VIP2D matrix.
-\code{VIP2D} must have rownames "feature_sep_time" (default \code{sep = "_"}) and
-columns = components.}
-
-\item{X}{3D array (n × p × k) with \code{dimnames} set for samples (mode 1),
-features (mode 2), and time/slice (mode 3). Used for the Case/Control strip.}
-
-\item{groups}{Two-class labels for samples. Can be:
-(a) named factor/vector whose names are sample IDs matching \code{dimnames(X)[[1]]};
-(b) 2-column data.frame (id, group); or (c) a vector already ordered as rows of X.}
-
-\item{comp}{Integer, component index from VIP2D (default 1).}
-
-\item{top_n}{Integer, number of top VIP per timepoint (default 15).}
-
-\item{threshold}{Numeric, vertical reference line for VIP (default 1).}
-
-\item{sep}{Character, separator between feature and time in VIP2D rownames (default "_").}
-
-\item{mode}{"winner" (opaque tile for group with higher mean) or "effect" (tiles by
-standardized effect size). The permutation p-values are independent of this choice.}
-
-\item{case_level}{Optional character; if provided and present among group levels, it is
-treated as the "Case" level (the other becomes "Control"). If NULL and "Class1"
-exists, "Class1" is used as Case.}
-
-\item{case_col, control_col}{Colors for Case/Control (winner mode; low/high in effect mode).}
-
-\item{loser_alpha}{Alpha for the non-winning tile in winner mode (default 0.25).}
-
-\item{Y}{Optional. Required \strong{only} if \code{permute_R > 0}. Matrix (n × q) or 3D array
-(n × q × k) used by your NPLS-DA to compute VIPs.}
-
-\item{ncomp}{Integer, number of components to fit during permutations (default tries to
-read \code{obj$ncomp_used}, else 1).}
-
-\item{permute_R}{Integer, number of label permutations to estimate p-values for
-Top-N inclusion (default 0 = disabled).}
-
-\item{alpha_perm}{Numeric in (0,1), threshold to mark significant Top-N points on the
-lollipop (default 0.05).}
-
-\item{fit_fun}{Optional function \verb{(Xb, Yb, ncomp, ...) -> VIP2D matrix}. By default this
-calls your \code{nplsda_vips()} and returns \verb{$VIP2D}. Extra args are passed via \code{...}.}
-
-\item{seed}{Optional integer for reproducibility of permutations.}
-
-\item{...}{Extra arguments forwarded to \code{fit_fun} (e.g., \code{outcome.Y}, \code{slice_vip = FALSE}).}
-}
-\value{
-A combined plot (patchwork/cowplot/gridExtra). If \code{permute_R > 0}, the lollipop
-points with \code{p_perm < alpha_perm} receive a black open-circle overlay.
 }
 \description{
-\itemize{
-\item Lollipop bars in orange.
-\item Significant Top-N (permutation p-value < alpha_perm) are shown with green points.
-\item Permutations run in parallel (future.apply multisession) and only return Top-N names,
-minimizing memory. BLAS/OMP threads are capped to 1 to avoid oversubscription on macOS.
-}
-}
-\details{
-\emph{Permutation p-values (Top-N inclusion):}
-For each permutation, Y's rows are permuted (breaking X–Y association), NPLS-DA is refit,
-VIP2D is recomputed, and Top-N per timepoint are recorded. For each observed (feature,time)
-currently in the Top-N, the p-value is estimated as:
-\deqn{ p = (1 + \#\{\text{perm where row is Top-N}\}) / (1 + R) }
-Lower p indicates the pair is unlikely to appear in Top-N by chance.
-
-The Case/Control strip still uses group means (on X). If X was globally centered, the
-means may look symmetric around zero but the winner is still informative.
-
-See the help text in your previous version for full parameter descriptions.
+Plot Top-N VIP2D with Case/Control strip and permutation p-values
 }
