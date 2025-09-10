@@ -43,3 +43,8 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
 **N-PLS-DA** extends PLS-DA to **multi-way (tensor) `X`**, extracting components that respect the tensor modes.
 
 > Intuition: PLS searches for directions in `X` that best **co-var** with `Y`, thus focusing on **predictive structure** relevant to the outcome.
+
+3) A workflow diagram
+<p align="center">
+  <img src="man/figures/" alt="Pipeline overview" width="600">
+</p>
