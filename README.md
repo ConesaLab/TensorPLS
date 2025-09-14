@@ -223,29 +223,32 @@ VIP scores → feature importance metrics
 The model reaches about **77% predictive power (Q²)**.
 
 Explained variance (R²):
-While to see the explained variance we can use nplsda_vipsGE$explvar
-          R2X     R2Xcum       R2Y    R2Ycum
-t1 0.06743331 0.06743331 0.4630587 0.4630587
-t2 0.09175181 0.15918513 0.2835863 0.7466450
-t3 0.05804639 0.21723152 0.1601153 0.9067603
+| Component | R2X    | R2Xcum | R2Y    | R2Ycum |
+| --------- | ------ | ------ | ------ | ------ |
+| t1        | 0.0674 | 0.0674 | 0.4631 | 0.4631 |
+| t2        | 0.0918 | 0.1592 | 0.2836 | 0.7466 |
+| t3        | 0.0580 | 0.2172 | 0.1601 | 0.9068 |
 
 R2Ycum shows that the cumulative explained variance of Y is about 90%.
 
-2) Understanding VIPs
+### Understanding VIPs
 
-The concept of VIP (Variable Importance in Projection) is central to PLS and N-PLS-DA.
+The concept of **VIP (Variable Importance in Projection)** is central to PLS and N-PLS-DA.  
 
 TensorPLS provides three complementary views:
 
-VIP2D → For component h, how important is feature f at time t.
+| View            | Description                                                                 |
+|-----------------|-----------------------------------------------------------------------------|
+| **VIP2D**       | For component *h*, how important is feature *f* at time *t*.               |
+| **VIP3D Model 1** | On component *h*, how important is feature *f* on average across time.    |
+| **VIP3D Model 2** | At time *t*, how important is feature *f* overall across components.      |
 
-VIP3D Model 1 → On component h, how important is feature f on average across time.
+---
 
-VIP3D Model 2 → At time t, how important is feature f overall across components.
+### Assessing group discrimination
 
-3) Assessing group discrimination
+To visualize how well the model separates groups, we compute **variates**:
 
-To visualize how well the model separates groups, we compute variates:
 ```r
 nplsda_vipsVariatesGE= compute_npls_variates(X = fullarrayGeneExpression, Y = outcomedummyarray136, ncomp =3)
 ###How to define classe vec:
