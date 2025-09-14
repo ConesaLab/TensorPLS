@@ -383,7 +383,39 @@ Re-plotting the variates with this feature set, we can observe an almost **compl
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/VIP2DModel32.png" alt="Variates after Feature Selection" width="600">
 </p>
+### Time-course contribution analysis
 
+Up to now, we have shown how **feature selection** improves discrimination and predictive performance.  
+But in **time-course data**, it’s not only *which variables* matter — it’s also **when they matter**.  
+In other words: *which time points are driving the model the most?*  
 
+To answer this, we need to **compute the factors**.  
 
+> **Note**: The number of components (`ncomp`) must always be the same as the one used in the PLS-DA analysis.
+
+```r
+factorsGE <- compute_npls_factors(
+  X = fullarrayIntersectionGEModel1Model2,
+  Y = outcomedummyarray136,
+  ncomp = 3
+)
+
+plot_nplsda_blockX_mode3(factorsGE, edge = c(0.2, 0.3))
 ```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/GEfactorsIntersection.png" alt="Tines that drives the components" width="600">
+</p>
+What do you see? 
+Each point represents a time point projected on the first two components.
+
+If a time point is far from the origin, it means it contributes strongly to shaping the components, i.e., it is influential for class separation.”
+So this analysis gives us not only a list of important features, but also a temporal fingerprint:
+
+Are the discriminative patterns concentrated in early time points?
+
+Do we see divergence later in the time course?
+
+Are different omics layers driven by different times?”
+
+This allows us to interpret the model in a biologically meaningful way — linking features to the specific time windows where they are most relevant.
+
