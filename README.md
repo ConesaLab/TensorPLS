@@ -124,22 +124,18 @@ Pareto plot:
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGCTOFX.png" alt="Elbow GCTOF dataset" width="600">
 </p>
 
-Here the elbow is at **10 components**.  
 
+
+## Running the imputation
+
+So now we are ready to perform the **imputation step**!  
+We need to pass to the imputation function the number of components to be used for the Tucker decomposition — a vital step in the imputation method.
 
 ```r
 # Gene Expression dataset
 fullarrayGeneExpression <- ImputemethodPackage(
   X        = X,
   fac      = c(4, 4, 3),
-  conver   = 1e-07,
-  max.iter = 1000
-)
-
-# GCTOF dataset
-fullarrayGCTOFX <- ImputemethodPackage(
-  X        = X,
-  fac      = c(4, 2, 4),
   conver   = 1e-07,
   max.iter = 1000
 )
