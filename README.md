@@ -45,9 +45,89 @@ PLS finds latent components by **maximizing the covariance between `X` (predicto
 In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).  
 **N-PLS-DA** extends PLS-DA to **multi-way (tensor) `X`**, extracting components that respect the tensor modes.
 
-> Intuition: PLS searches for directions in `X` that best **co-var** with `Y`, thus focusing on **predictive structure** relevant to the outcome.
 
 3) A workflow diagram
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="600">
+</p>
+# 4) Tutorial: How to use TensorPLS?
+
+Here we show a minimal workflow using TensorPLS on example data, this example consider a very large dataset with 136 Subjects, 21285 features (Genes) and 5 time points. So we need to 
+expect for those type of dataset a significant computational time in Steps like imputation (if needed). 
+In this example we have an external metadata file with information about subjects that user can use to filter the dataset (cohort_filter parameter)
+ 
+
+```r
+library(TensorPLS)
+
+# Load example data
+raw_path    <- system.file("extdata", "GeneExpressionDataProcessed.csv", package = "TensorPLS")
+cohort_path <- system.file("extdata", "CohortData.csv", package = "TensorPLS")
+
+# Build tensor (Subjects × Features × Time). 
+## Parameters used in the example
+
+X <- prepare_omics(
+  data          = raw_path,              # Input CSV with omics data
+  id_col        = "Individual.Id",       # Subject identifier column
+  time_col      = "Time.to.IA",          # Time-point column
+  transpose     = "always",              # Force transposition (raw file is wide-by-feature)
+  coercion_mode = "force_numeric",       # Coerce IDs and Time to numeric, features to numeric
+  cohort        = cohort_path,           # Metadata file with subject annotations
+  cohort_id_col = "Group.Id",            # Column in metadata matching subject IDs
+  cohort_filter = "Model.or.Validation=='Model'" # Keep only the "Model" subset
+)
+#> [1]   136 21285     5
+```
+
+## Imputation with Tucker decomposition
+
+Now that we have created the tensor `X`, we need to address **missing data**.  
+TensorPLS uses a **Tucker decomposition** combined with **ALS (Alternating Least Squares)** for imputation.
+
+ On large datasets this step can take hours (2–3h for the Gene Expression dataset).  
+On smaller datasets (e.g. metabolomics, 136 × 514 × 5), imputation may only take a few minutes.
+
+---
+
+## Choosing the number of components
+
+Before imputation, we must decide how many components to use for each tensor mode:
+
+- **Mode 1** = Subjects  
+- **Mode 2** = Features  
+- **Mode 3** = Time  
+
+This decision is made using **Pareto (elbow) plots** and **heatmaps**.
+
+---
+
+### Example: Gene Expression dataset
+
+Pareto plot:  
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGE.png" alt="Elbow Gene Expression Dataset" width="600">
+</p>
+
+We see a good tradeoff at **11 components**.  
+From the heatmap below, we select **(4, 4, 3)**.  
+
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/heatmapComponents.png" alt="Heatmap Gene Expression" width="600">
+</p>
+
+---
+
+### Example: GCTOF dataset
+
+Pareto plot:  
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGCTOFX.png" alt="Elbow GCTOF dataset" width="600">
+</p>
+
+Here the elbow is at **10 components**.  
+Heatmap suggests **(4, 2, 4)**.  
+
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/heatmapComponentsArrGCTOFX.png" alt="Heatmap GCTOF" width="600">
 </p>
