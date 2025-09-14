@@ -405,17 +405,27 @@ plot_nplsda_blockX_mode3(factorsGE, edge = c(0.2, 0.3))
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/GEfactorsIntersection.png" alt="Tines that drives the components" width="600">
 </p>
-What do you see? 
-Each point represents a time point projected on the first two components.
+### Interpreting time-point contributions
 
-If a time point is far from the origin, it means it contributes strongly to shaping the components, i.e., it is influential for class separation.”
-So this analysis gives us not only a list of important features, but also a temporal fingerprint:
+What do we see in the plot?  
+Each point represents a **time point** projected onto the first two components.
 
-Are the discriminative patterns concentrated in early time points?
+- Points **far from the origin (0,0)** → contribute strongly to shaping the components, i.e. they are **influential for class separation**.  
+- Points **close to the origin** → have little impact on the components.  
+- **Distance from the origin ∝ importance** of the time point.  
+- **Direction** indicates which component is being driven.  
+- **Sign (positive/negative)** reflects the *phase*: time points with opposite signs drive the components in opposite directions.  
+- **Clustered points** suggest time points with a similar role.  
+- **Outliers** indicate key time points strongly influencing the model.  
 
-Do we see divergence later in the time course?
+---
 
-Are different omics layers driven by different times?”
+### Biological interpretation
 
-This allows us to interpret the model in a biologically meaningful way — linking features to the specific time windows where they are most relevant.
+This analysis provides not only a list of important features, but also a **temporal fingerprint**:
 
+- Are the discriminative patterns concentrated in **early time points**?  
+- Do we see divergence only **later in the time course**?  
+- Are different **omics layers** driven by different times?  
+
+ This allows us to interpret the model in a **biologically meaningful way** — linking features to the **specific time windows** where they are most relevant.
