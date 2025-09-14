@@ -176,3 +176,121 @@ nCompGE <- ncomp_elbow_nplsda(fullarrayGeneExpression, outcomedummyarray136, rep
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/nCompGE.png" alt="Elbow pls-DA" width="600">
 </p>
 
+We see a good tradeoff at **3 components**.  
+
+### PLS-DA analysis  
+
+Now that we are ready for **PLS-DA analysis**, we can use several functions in TensorPLS to answer the core questions:  
+
+- Is the model able to discriminate groups?  
+- How much variance is explained (**R²**)?  
+- How well does the model predict unseen data (**Q²**)?  
+- Which features contribute the most (**VIP scores**)?  
+
+---
+
+#### 1) Running N-PLS-DA with VIPs
+
+```r
+nplsda_vipsGE <- nplsda_vips(
+  X = fullarrayGeneExpression, 
+  Y = outcomedummyarray136,
+  ncomp = 3,               # number of components chosen in the tuning step
+  slice_vip = TRUE
+)
+
+
+
+```
+Function outputs
+
+This function outputs:
+
+Q² → predictive ability of the model
+
+R² → explained variance
+
+VIP scores → feature importance metrics
+
+### Example: cumulative Q² values with 3 components
+
+| Component | Q² (t1) | Q² (t2) | Q² (t3) | Q² (t4) | Q² (t5) |
+|-----------|---------|---------|---------|---------|---------|
+| 1         | 0.1980  | 0.1980  | 0.1980  | 0.1980  | 0.1980  |
+| 2         | 0.5184  | 0.5184  | 0.5184  | 0.5184  | 0.5184  |
+| 3         | 0.7721  | 0.7721  | 0.7721  | 0.7721  | 0.7721  |
+
+The model reaches about **77% predictive power (Q²)**.
+
+Explained variance (R²):
+| Component | R2X    | R2Xcum | R2Y    | R2Ycum |
+| --------- | ------ | ------ | ------ | ------ |
+| t1        | 0.0674 | 0.0674 | 0.4631 | 0.4631 |
+| t2        | 0.0918 | 0.1592 | 0.2836 | 0.7466 |
+| t3        | 0.0580 | 0.2172 | 0.1601 | 0.9068 |
+
+R2Ycum shows that the cumulative explained variance of Y is about 90%.
+
+### Understanding VIPs
+
+The concept of **VIP (Variable Importance in Projection)** is central to PLS and N-PLS-DA.  
+
+TensorPLS provides three complementary views:
+
+| View            | Description                                                                 |
+|-----------------|-----------------------------------------------------------------------------|
+| **VIP2D**       | For component *h*, how important is feature *f* at time *t*.               |
+| **VIP3D Model 1** | On component *h*, how important is feature *f* on average across time.    |
+| **VIP3D Model 2** | At time *t*, how important is feature *f* overall across components.      |
+
+---
+
+### Assessing group discrimination
+
+To visualize how well the model separates groups, we compute **variates**:
+
+```r
+nplsda_vipsVariatesGE= compute_npls_variates(X = fullarrayGeneExpression, Y = outcomedummyarray136, ncomp =3)
+###How to define classe vec:
+class_vec <- factor(
+  outcomedummyarray136[, 1, 1],
+  levels = c(0, 1),
+  labels = c("Class0", "Class1")
+)
+head(class_vec)
+229251 235421 249696 254394 259207 265155 
+Class0 Class0 Class1 Class0 Class1 Class1 
+Levels: Class0 Class1
+```
+
+Then we plot the scores to check group separation:
+```r
+plot_nplsda_scores(scores_matrix = nplsda_vipsVariatesGE$NPLSDAvariates$X,nplsdaVipIntersectionGETotal$explvar, class_vec = class_vec,pc1 = 1,pc2 = 2,variance = TRUE)
+```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/tvariatesGE.png" alt="Mo pls-DA" width="600">
+</p>
+Each dot represents a sample, and the two colors correspond to the two classes.
+
+We observe a partial separation between groups: even without feature selection, the model is already able to discriminate between classes.
+
+Now, to improve the ability of the model to discriminate groups we have added a Feature Selection Steps. 
+### Feature Selection to improve discrimination
+
+To improve the ability of the model to discriminate groups, we add a **Feature Selection step**.  
+The logic of feature selection in TensorPLS is based on a combination of two approaches:
+
+1. **Feature selection on the VIPs** objects returned from the `nplsda_vips` function.  
+2. Evaluate the **intersection or union** between selected variables.  
+3. **Re-run N-PLS-DA** on these different combinations and compare results in terms of metrics like **Q²** and **R²**.  
+4. Choose the **best model**.  
+
+---
+
+> At the moment, only **point 1** is implemented as a function.  
+> Points **2–4** must be carried out **manually** by the user.  
+> An automatic pipeline for this process is not yet available, so users must compare results across different situations.  
+
+---
+
+
