@@ -140,3 +140,39 @@ fullarrayGeneExpression <- ImputemethodPackage(
   max.iter = 1000
 )
 ```
+### PLS-DA after imputation  
+
+Once imputation is completed, the next step is **PLS-DA modeling**.  
+Before running PLS-DA, we need to **tune the number of components**.  
+
+We use the **Q² metric** to guide this choice:  
+- Q² measures the model’s predictive ability.  
+- We look for the “elbow”: the point where adding more components no longer increases explained variance.  
+
+ **Important**: PLS-DA requires an outcome `Y` as input.  
+
+#### Structure of Y  
+- `Y` must be a **3D array**, just like `X`.  
+- **Dimensions:** `Subjects × 1 × Time`  
+  - **Subjects** → same number of individuals as in `X`  
+  - **1** → only one feature (the outcome/class)  
+  - **Time** → same number of time points as in `X`  
+
+ **Example**:  
+If `X` has shape `136 × 21285 × 5`, then `Y` must have shape `136 × 1 × 5`.  
+
+Here `Y` encodes class membership, e.g.:  
+- `0 = control`  
+- `1 = case`  
+
+---
+
+#### Tuning the number of components
+
+```r
+nCompGE <- ncomp_elbow_nplsda(fullarrayGeneExpression, outcomedummyarray136, reps = 10)
+```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/nCompGE.png" alt="Elbow pls-DA" width="600">
+</p>
+
