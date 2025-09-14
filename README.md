@@ -422,9 +422,61 @@ Each point represents a **time point** projected onto the first two components.
 
 ---
 
-This analysis provides not only a list of important features, but also a **temporal fingerprint**:
+### Plotting VIP2D and Assessing Feature Robustness
 
-- Are the discriminative patterns concentrated in **early time points**?  
-- Do we see divergence only **later in the time course**?  
-- Are different **omics layers** driven by different times?  
+Another  functionality offered by TensorPLS is the ability to **plot VIP2D scores** and understand what they represent.  
+VIP2D highlights the **importance of each feature at each time point** in driving class separation.  
 
+In addition to simple ranking, TensorPLS provides a way to **evaluate the robustness** of these Top-N VIP2D features through **permutation testing**.  
+This allows you to distinguish between features that appear influential in a single model fit and those that remain stable across repeated resampling.
+
+---
+
+#### How it works
+
+1. The function extracts the **Top-N features (per time point)** with the highest VIP2D scores.  
+2. Class labels (`Y`) are **randomly permuted** across samples, and the PLS-DA model is re-fitted.  
+3. At each permutation, the **Top-N list** is recomputed.  
+4. For every feature, the **number of times** it reappears in the Top-N list across permutations is counted.  
+5. A **permutation p-value** is computed as:  
+
+\[
+p = \frac{\text{# times feature selected in permutations} + 1}{R + 1}
+\]
+
+where *R* is the total number of permutations.  
+
+---
+
+#### Interpretation
+
+-  A **low permutation p-value** (e.g., < 0.05) → the feature consistently ranks among the Top-N and is unlikely to appear by chance.  
+-  A **high permutation p-value** → the feature is unstable and less reliable as a biomarker.  
+
+---
+
+#### In the plots
+
+- **Orange bars + orange dots** = features selected in the Top-N by VIP score.  
+- **Green dots** = features also significant according to permutation testing (robust features).  
+
+This visualization helps distinguish between:  
+- **Influential but unstable features** (orange only)  
+- **Robust features** that remain stable across resampling (green).  
+
+---
+
+#### Example usage
+
+```r
+plot_vip2d_with_groups_nogaps(
+  X      = fullarrayIntersectionGEModel1Model2,
+  Y      = outcomedummyarray136,
+  ncomp  = 3,
+  topN   = 20,
+  perms  = 1000
+)
+```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/plotVip2DPer.png" alt="Tines that drives the components" width="600">
+</p>
