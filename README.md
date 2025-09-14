@@ -405,6 +405,7 @@ plot_nplsda_blockX_mode3(factorsGE, edge = c(0.2, 0.3))
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/GEfactorsIntersection.png" alt="Tines that drives the components" width="600">
 </p>
+
 ### Interpreting time-point contributions
 
 What do we see in the plot?  
