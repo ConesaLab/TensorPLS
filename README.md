@@ -383,6 +383,7 @@ Re-plotting the variates with this feature set, we can observe an almost **compl
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/VIP2DModel32.png" alt="Variates after Feature Selection" width="600">
 </p>
+
 ### Time-course contribution analysis
 
 Up to now, we have shown how **feature selection** improves discrimination and predictive performance.  
