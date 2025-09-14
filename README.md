@@ -422,12 +422,9 @@ Each point represents a **time point** projected onto the first two components.
 
 ---
 
-### Biological interpretation
-
 This analysis provides not only a list of important features, but also a **temporal fingerprint**:
 
 - Are the discriminative patterns concentrated in **early time points**?  
 - Do we see divergence only **later in the time course**?  
 - Are different **omics layers** driven by different times?  
 
- This allows us to interpret the model in a **biologically meaningful way** — linking features to the **specific time windows** where they are most relevant.
