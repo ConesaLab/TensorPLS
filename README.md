@@ -293,4 +293,97 @@ The logic of feature selection in TensorPLS is based on a combination of two app
 
 ---
 
+### Example: Feature selection workflow
 
+Here we show an example of how to perform feature selection:  
+
+---
+
+#### 1. Feature selection on the VIPs
+
+We apply the `feature_selection` function on the three VIP objects returned from `nplsda_vips`.
+
+```r
+selectedVip3DModel2 <- feature_selection(nplsda_vipsGE$VIP3Dmodel2, thr = 99, strip_time = TRUE)
+selectedVip3DModel1 <- feature_selection(nplsda_vipsGE$VIP3Dmodel1, thr = 99, strip_time = TRUE)
+selectedVip2D       <- feature_selection(
+  nplsda_vipsGE$VIP2D,
+  thr = 99,
+  strip_time = TRUE,
+  pattern = "_-?\\d+$"
+)
+```
+> **Note**  
+> - The output of **VIP2D** is formatted as `Feature_Time`, e.g. `Feature_-n` where *n* is one of the time points (*-12, -9, -6, -3, 0*).  
+> - To remove this suffix and compare features across time, use the **regex pattern** (`pattern`) together with `strip_time = TRUE`.  
+> - You may need to **adapt the pattern** depending on your data format.
+
+
+Now that we have completed the **first step of feature selection**, the next step is to inspect the **relationships between the different VIPs** selected at the chosen percentile threshold.  
+
+You can use a preliminary function to visualize the overlap between selected features:  
+
+```r
+feature_lists <- list(
+  "VIP 3D – Model 2" = unique(selectedVip3DModel2),
+  "VIP 3D – Model 1" = unique(selectedVip3DModel1),
+  "VIP 2D – Model"   = unique(selectedVip2D)
+)
+
+draw_venn_diagram(feature_lists)
+
+```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/vennGE.png" alt="Mo pls-DA" width="600">
+</p>
+
+From the Venn diagram, we can observe that **VIP 3D Model 2** and **VIP 2D** share the largest overlap.  
+
+However, this information alone is **not sufficient** to decide whether to use their **union** or **intersection**.  
+To make this decision, it is necessary to **re-run N-PLS-DA** on each combination of selected features and compare performance metrics such as **Q²** and **R²**.  
+
+---
+
+### Example: Re-running N-PLS-DA with different feature sets
+
+In this example, we show how to compare models obtained from different **intersections** or **unions** of selected features.  
+The first step is to **recreate the tensor (`fullarray`)** using only the selected variables.
+
+```r
+# Taking intersection between VIP 3D Model 2 and VIP 3D Model 1
+intersectionGEModel1Model2 <- intersect(selectedVip3DModel2, selectedVip3DModel1)
+
+# Create the full array containing only those features
+fullarrayIntersectionGEModel1Model2 <- fullarrayGeneExpression[,
+  is.element(colnames(fullarrayGeneExpression), intersectionGEModel1Model2),
+]
+
+# Tune the number of components (if needed) and re-run N-PLS-DA
+nplsda_vipsGEModel1Model2 <- nplsda_vips(
+  fullarrayIntersectionGEModel1Model2,
+  outcomedummyarray136,
+  ncomp = 3
+)
+```
+You can repeat this process for each combination of intersections and unions between VIP sets.
+### Best performing model
+
+In our case, the **best model** was obtained using the **intersection between VIP2D and VIP 3D Model 2**,  
+reaching the following performance:
+
+- **Q² = 0.9397**  
+- **R² = 0.98**
+
+---
+
+### Variates after feature selection
+
+Re-plotting the variates with this feature set, we can observe an almost **complete separation between groups**:
+
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/VIP2DModel32.png" alt="Variates after Feature Selection" width="600">
+</p>
+
+
+
+```
