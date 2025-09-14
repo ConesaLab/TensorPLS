@@ -212,14 +212,15 @@ R² → explained variance
 
 VIP scores → feature importance metrics
 
-Example: cumulative Q² values with 3 components:
+### Example: cumulative Q² values with 3 components
 
-        [,1]      [,2]      [,3]      [,4]      [,5]
-[1,] 0.1980425 0.1980425 0.1980425 0.1980425 0.1980425
-[2,] 0.5183855 0.5183855 0.5183855 0.5183855 0.5183855
-[3,] 0.7720646 0.7720646 0.7720646 0.7720646 0.7720646
+| Component | Q² (t1) | Q² (t2) | Q² (t3) | Q² (t4) | Q² (t5) |
+|-----------|---------|---------|---------|---------|---------|
+| 1         | 0.1980  | 0.1980  | 0.1980  | 0.1980  | 0.1980  |
+| 2         | 0.5184  | 0.5184  | 0.5184  | 0.5184  | 0.5184  |
+| 3         | 0.7721  | 0.7721  | 0.7721  | 0.7721  | 0.7721  |
 
-Here, the model reaches about 77% predictive power (Q²).
+The model reaches about **77% predictive power (Q²)**.
 
 Explained variance (R²):
 While to see the explained variance we can use nplsda_vipsGE$explvar
