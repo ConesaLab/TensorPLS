@@ -384,6 +384,47 @@ Re-plotting the variates with this feature set, we can observe an almost **compl
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/VIP2DModel32.png" alt="Variates after Feature Selection" width="600">
 </p>
 
+### Time-course contribution analysis
 
+Up to now, we have shown how **feature selection** improves discrimination and predictive performance.  
+But in **time-course data**, it’s not only *which variables* matter — it’s also **when they matter**.  
+In other words: *which time points are driving the model the most?*  
 
+To answer this, we need to **compute the factors**.  
+
+> **Note**: The number of components (`ncomp`) must always be the same as the one used in the PLS-DA analysis.
+
+```r
+factorsGE <- compute_npls_factors(
+  X = fullarrayIntersectionGEModel1Model2,
+  Y = outcomedummyarray136,
+  ncomp = 3
+)
+
+plot_nplsda_blockX_mode3(factorsGE, edge = c(0.2, 0.3))
 ```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/GEfactorsIntersection.png" alt="Tines that drives the components" width="600">
+</p>
+
+### Interpreting time-point contributions
+
+What do we see in the plot?  
+Each point represents a **time point** projected onto the first two components.
+
+- Points **far from the origin (0,0)** → contribute strongly to shaping the components, i.e. they are **influential for class separation**.  
+- Points **close to the origin** → have little impact on the components.  
+- **Distance from the origin ∝ importance** of the time point.  
+- **Direction** indicates which component is being driven.  
+- **Sign (positive/negative)** reflects the *phase*: time points with opposite signs drive the components in opposite directions.  
+- **Clustered points** suggest time points with a similar role.  
+- **Outliers** indicate key time points strongly influencing the model.  
+
+---
+
+This analysis provides not only a list of important features, but also a **temporal fingerprint**:
+
+- Are the discriminative patterns concentrated in **early time points**?  
+- Do we see divergence only **later in the time course**?  
+- Are different **omics layers** driven by different times?  
+
