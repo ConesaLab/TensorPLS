@@ -274,4 +274,23 @@ Each dot represents a sample, and the two colors correspond to the two classes.
 
 We observe a partial separation between groups: even without feature selection, the model is already able to discriminate between classes.
 
+Now, to improve the ability of the model to discriminate groups we have added a Feature Selection Steps. 
+### Feature Selection to improve discrimination
+
+To improve the ability of the model to discriminate groups, we add a **Feature Selection step**.  
+The logic of feature selection in TensorPLS is based on a combination of two approaches:
+
+1. **Feature selection on the VIPs** objects returned from the `nplsda_vips` function.  
+2. Evaluate the **intersection or union** between selected variables.  
+3. **Re-run N-PLS-DA** on these different combinations and compare results in terms of metrics like **Q²** and **R²**.  
+4. Choose the **best model**.  
+
+---
+
+> At the moment, only **point 1** is implemented as a function.  
+> Points **2–4** must be carried out **manually** by the user.  
+> An automatic pipeline for this process is not yet available, so users must compare results across different situations.  
+
+---
+
 
