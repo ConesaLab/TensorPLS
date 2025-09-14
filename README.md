@@ -176,3 +176,95 @@ nCompGE <- ncomp_elbow_nplsda(fullarrayGeneExpression, outcomedummyarray136, rep
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/nCompGE.png" alt="Elbow pls-DA" width="600">
 </p>
 
+We see a good tradeoff at **3 components**.  
+
+### PLS-DA analysis  
+
+Now that we are ready for **PLS-DA analysis**, we can use several functions in TensorPLS to answer the core questions:  
+
+- Is the model able to discriminate groups?  
+- How much variance is explained (**R²**)?  
+- How well does the model predict unseen data (**Q²**)?  
+- Which features contribute the most (**VIP scores**)?  
+
+---
+
+#### 1) Running N-PLS-DA with VIPs
+
+```r
+nplsda_vipsGE <- nplsda_vips(
+  X = fullarrayGeneExpression, 
+  Y = outcomedummyarray136,
+  ncomp = 3,               # number of components chosen in the tuning step
+  slice_vip = TRUE
+)
+
+
+
+```
+Function outputs
+
+This function outputs:
+
+Q² → predictive ability of the model
+
+R² → explained variance
+
+VIP scores → feature importance metrics
+
+Example: cumulative Q² values with 3 components:
+
+        [,1]      [,2]      [,3]      [,4]      [,5]
+[1,] 0.1980425 0.1980425 0.1980425 0.1980425 0.1980425
+[2,] 0.5183855 0.5183855 0.5183855 0.5183855 0.5183855
+[3,] 0.7720646 0.7720646 0.7720646 0.7720646 0.7720646
+
+Here, the model reaches about 77% predictive power (Q²).
+
+Explained variance (R²):
+While to see the explained variance we can use nplsda_vipsGE$explvar
+          R2X     R2Xcum       R2Y    R2Ycum
+t1 0.06743331 0.06743331 0.4630587 0.4630587
+t2 0.09175181 0.15918513 0.2835863 0.7466450
+t3 0.05804639 0.21723152 0.1601153 0.9067603
+
+R2Ycum shows that the cumulative explained variance of Y is about 90%.
+
+2) Understanding VIPs
+
+The concept of VIP (Variable Importance in Projection) is central to PLS and N-PLS-DA.
+
+TensorPLS provides three complementary views:
+
+VIP2D → For component h, how important is feature f at time t.
+
+VIP3D Model 1 → On component h, how important is feature f on average across time.
+
+VIP3D Model 2 → At time t, how important is feature f overall across components.
+
+3) Assessing group discrimination
+
+To visualize how well the model separates groups, we compute variates:
+```r
+nplsda_vipsVariatesGE= compute_npls_variates(X = fullarrayGeneExpression, Y = outcomedummyarray136, ncomp =3)
+###How to define classe vec:
+class_vec <- factor(
+  outcomedummyarray136[, 1, 1],
+  levels = c(0, 1),
+  labels = c("Class0", "Class1")
+)
+head(class_vec)
+229251 235421 249696 254394 259207 265155 
+Class0 Class0 Class1 Class0 Class1 Class1 
+Levels: Class0 Class1
+```
+
+Then we plot the scores to check group separation:
+```r
+plot_nplsda_scores(scores_matrix = nplsda_vipsVariatesGE$NPLSDAvariates$X,nplsdaVipIntersectionGETotal$explvar, class_vec = class_vec,pc1 = 1,pc2 = 2,variance = TRUE)
+```
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/tvariatesGE.png" alt="Mo pls-DA" width="600">
+</p>
+Each dot represents a sample, and the two colors correspond to the two classes.
+We observe a partial separation between groups: even without feature selection, the model is already able to discriminate between classes.
