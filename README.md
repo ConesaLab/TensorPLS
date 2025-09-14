@@ -54,8 +54,7 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
 
 Here we show a minimal workflow using TensorPLS on example data, this example consider a very large dataset with 136 Subjects, 21285 features (Genes) and 5 time points. So we need to 
 expect for those type of dataset a significant computational time in Steps like imputation (if needed). 
-In this example we have an external metadata file with information about subjects that user can use to filter the dataset (cohort_filter parameter)
- 
+In this example we have an external metadata file with information about subjects that user can use to filter the dataset (cohort_filter parameter). I will also include some examples from the GCTOF dataset to highlight specific differences when needed, while the complete pipeline is illustrated using the Gene Expression dataset.
 
 ```r
 library(TensorPLS)
@@ -118,7 +117,7 @@ From the heatmap below, we select **(4, 4, 3)**.
 
 ---
 
-### Example: GCTOF dataset
+### At this step, I also provide a plot from the GCTOF dataset (used for testing), where a more distinct elbow is observed at 10 components.
 
 Pareto plot:  
 <p align="center">
@@ -126,8 +125,22 @@ Pareto plot:
 </p>
 
 Here the elbow is at **10 components**.  
-Heatmap suggests **(4, 2, 4)**.  
 
-<p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/heatmapComponentsArrGCTOFX.png" alt="Heatmap GCTOF" width="600">
-</p>
+
+```r
+# Gene Expression dataset
+fullarrayGeneExpression <- ImputemethodPackage(
+  X        = X,
+  fac      = c(4, 4, 3),
+  conver   = 1e-07,
+  max.iter = 1000
+)
+
+# GCTOF dataset
+fullarrayGCTOFX <- ImputemethodPackage(
+  X        = X,
+  fac      = c(4, 2, 4),
+  conver   = 1e-07,
+  max.iter = 1000
+)
+```
