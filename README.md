@@ -140,3 +140,37 @@ fullarrayGeneExpression <- ImputemethodPackage(
   max.iter = 1000
 )
 ```
+###After the imputation we need to go for the PLS-DA steps. 
+Before to do this we need to tune the number of components needed to do pls-DA.
+Here the function to do this: We use the Q**2 like metrics. In particular we have to see where adding components don't gain the explained variance.
+
+Attention: For PLS-DA analysis we need to pass also an Y like in input. The users has to pass an Y like the examples that i have showed but can be also 2D.
+How should Y be structured?
+
+Y must be a 3D array, just like X.
+
+Dimensions: Subjects × 1 × Time
+
+Subjects → same number of individuals as in X
+
+1 → only one feature (the outcome / class)
+
+Time → same number of time points as in X
+Example: If X has shape 136 × 21285 × 5, then Y must have shape 136 × 1 × 5.
+Here, Y encodes class membership (e.g., 0 = control, 1 = case) for each subject across time.
+
+So let's to tune the number of components to use for PLS-DA: 
+
+
+```r
+nCompGE = ncomp_elbow_nplsda(fullarrayGeneExpression,outcomedummyarray136,reps = 10)
+```
+
+
+```
+
+
+<p align="center">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/nCompGE.png" alt="Elbow pls-DA" width="600">
+</p>
+
