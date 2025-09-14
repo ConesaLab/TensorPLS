@@ -267,4 +267,7 @@ plot_nplsda_scores(scores_matrix = nplsda_vipsVariatesGE$NPLSDAvariates$X,nplsda
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/tvariatesGE.png" alt="Mo pls-DA" width="600">
 </p>
 Each dot represents a sample, and the two colors correspond to the two classes.
+
 We observe a partial separation between groups: even without feature selection, the model is already able to discriminate between classes.
+
+
