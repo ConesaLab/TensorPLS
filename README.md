@@ -48,7 +48,7 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
 
 3) A workflow diagram
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="400">
 </p>
 # 4) Tutorial: How to use TensorPLS?
 
@@ -105,14 +105,14 @@ This decision is made using **Pareto (elbow) plots** and **heatmaps**.
 
 Pareto plot:  
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGE.png" alt="Elbow Gene Expression Dataset" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGE.png" alt="Elbow Gene Expression Dataset" width="400">
 </p>
 
 We see a good tradeoff at **11 components**.  
 From the heatmap below, we select **(4, 4, 3)**.  
 
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/heatmapComponents.png" alt="Heatmap Gene Expression" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/heatmapComponents.png" alt="Heatmap Gene Expression" width="400">
 </p>
 
 ---
@@ -121,7 +121,7 @@ From the heatmap below, we select **(4, 4, 3)**.
 
 Pareto plot:  
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGCTOFX.png" alt="Elbow GCTOF dataset" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/paretoGCTOFX.png" alt="Elbow GCTOF dataset" width="400">
 </p>
 
 
@@ -173,7 +173,7 @@ Here `Y` encodes class membership, e.g.:
 nCompGE <- ncomp_elbow_nplsda(fullarrayGeneExpression, outcomedummyarray136, reps = 10)
 ```
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/nCompGE.png" alt="Elbow pls-DA" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/nCompGE.png" alt="Elbow pls-DA" width="400">
 </p>
 
 We see a good tradeoff at **3 components**.  
@@ -268,7 +268,7 @@ Then we plot the scores to check group separation:
 plot_nplsda_scores(scores_matrix = nplsda_vipsVariatesGE$NPLSDAvariates$X,nplsdaVipIntersectionGETotal$explvar, class_vec = class_vec,pc1 = 1,pc2 = 2,variance = TRUE)
 ```
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/tvariatesGE.png" alt="Mo pls-DA" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/tvariatesGE.png" alt="Mo pls-DA" width="400">
 </p>
 Each dot represents a sample, and the two colors correspond to the two classes.
 
@@ -334,7 +334,7 @@ draw_venn_diagram(feature_lists)
 
 ```
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/vennGE.png" alt="Mo pls-DA" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/vennGE.png" alt="Mo pls-DA" width="400">
 </p>
 
 From the Venn diagram, we can observe that **VIP 3D Model 2** and **VIP 2D** share the largest overlap.  
@@ -381,7 +381,7 @@ reaching the following performance:
 Re-plotting the variates with this feature set, we can observe an almost **complete separation between groups**:
 
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/VIP2DModel32.png" alt="Variates after Feature Selection" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/VIP2DModel32.png" alt="Variates after Feature Selection" width="400">
 </p>
 
 ### Time-course contribution analysis
@@ -404,7 +404,7 @@ factorsGE <- compute_npls_factors(
 plot_nplsda_blockX_mode3(factorsGE, edge = c(0.2, 0.3))
 ```
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/GEfactorsIntersection.png" alt="Tines that drives the components" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/GEfactorsIntersection.png" alt="Tines that drives the components" width="400">
 </p>
 
 ### Interpreting time-point contributions
@@ -478,5 +478,5 @@ plot_vip2d_with_groups_nogaps(
 )
 ```
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/plotVip2DPer.png" alt="Tines that drives the components" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/plotVip2DPer.png" alt="Tines that drives the components" width="400">
 </p>
