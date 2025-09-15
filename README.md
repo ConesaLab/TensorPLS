@@ -441,10 +441,6 @@ This allows you to distinguish between features that appear influential in a sin
 4. For every feature, the **number of times** it reappears in the Top-N list across permutations is counted.  
 5. A **permutation p-value** is computed as:  
 
-\[
-p = \frac{\text{# times feature selected in permutations} + 1}{R + 1}
-\]
-
 where *R* is the total number of permutations.  
 
 ---
