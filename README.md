@@ -13,7 +13,7 @@ Most will be installed automatically with `devtools::install_github()`.
 ```r
 if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-
+``
 BiocManager::install("mixOmics")
 ```
 # Installation
