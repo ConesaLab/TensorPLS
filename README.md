@@ -51,7 +51,7 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="400">
 </p>
 
-# 4) Tutorial: How to use TensorPLS?
+# 4) Tutorial: How to use TensorPLS:
 
 Here we show a minimal workflow using TensorPLS on example data, this example consider a very large dataset with 136 Subjects, 21285 features (Genes) and 5 time points. So we need to 
 expect for those type of dataset a significant computational time in Steps like imputation (if needed). 
@@ -85,7 +85,7 @@ X <- prepare_omics(
 Now that we have created the tensor `X`, we need to address **missing data**.  
 TensorPLS uses a **Tucker decomposition** combined with **ALS (Alternating Least Squares)** for imputation.
 
- On large datasets this step can take hours (2–3h for the Gene Expression dataset).  
+On large datasets this step can take hours (2–3h for the Gene Expression dataset).  
 On smaller datasets (e.g. metabolomics, 136 × 514 × 5), imputation may only take a few minutes.
 
 ---
@@ -283,7 +283,7 @@ The logic of feature selection in TensorPLS is based on a combination of two app
 
 1. **Feature selection on the VIPs** objects returned from the `nplsda_vips` function.  
 2. Evaluate the **intersection or union** between selected variables.  
-3. **Re-run N-PLS-DA** on these different combinations and compare results in terms of metrics like **Q²** and **R²**.  
+3. **Re-run PLS-DA** on these different combinations and compare results in terms of metrics like **Q²** and **R²**.  
 4. Choose the **best model**.  
 
 ---
@@ -341,11 +341,11 @@ draw_venn_diagram(feature_lists)
 From the Venn diagram, we can observe that **VIP 3D Model 2** and **VIP 2D** share the largest overlap.  
 
 However, this information alone is **not sufficient** to decide whether to use their **union** or **intersection**.  
-To make this decision, it is necessary to **re-run N-PLS-DA** on each combination of selected features and compare performance metrics such as **Q²** and **R²**.  
+To make this decision, it is necessary to **re-run PLS-DA** on each combination of selected features and compare performance metrics such as **Q²** and **R²**.  
 
 ---
 
-### Example: Re-running N-PLS-DA with different feature sets
+### Example: Re-running PLS-DA with different feature sets
 
 In this example, we show how to compare models obtained from different **intersections** or **unions** of selected features.  
 The first step is to **recreate the tensor (`fullarray`)** using only the selected variables.
