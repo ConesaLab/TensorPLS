@@ -46,7 +46,7 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
 **N-PLS-DA** extends PLS-DA to **multi-way (tensor) `X`**, extracting components that respect the tensor modes.
 
 
-3) A workflow diagram
+# 3) A workflow diagram
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="400">
 </p>
