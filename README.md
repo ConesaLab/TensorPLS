@@ -38,7 +38,7 @@ Multi-omics and longitudinal studies often generate data with a natural **multi-
 
 # 1) Core questions addressed by TensorPLS
 
-When applying N-PLS-DA with TensorPLS, you can answer:
+When applying PLS-DA with TensorPLS, you can answer:
 
 1. **Is the model able to discriminate groups?**  
 
