@@ -1,6 +1,6 @@
 # TensorPLS
 
-An R package for exploring patterns in three-way omics data using N-PLS-DA.
+An R package for exploring patterns in three-way omics data using PLS-DA.
 
 ---
 # Prerequisites
