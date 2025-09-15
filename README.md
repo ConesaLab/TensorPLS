@@ -50,6 +50,7 @@ In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).
 <p align="center">
   <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/overviewTensorPLS.png" alt="Pipeline overview" width="400">
 </p>
+
 # 4) Tutorial: How to use TensorPLS?
 
 Here we show a minimal workflow using TensorPLS on example data, this example consider a very large dataset with 136 Subjects, 21285 features (Genes) and 5 time points. So we need to 
