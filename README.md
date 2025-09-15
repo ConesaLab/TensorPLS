@@ -3,6 +3,30 @@
 An R package for exploring patterns in three-way omics data using N-PLS-DA.
 
 ---
+# Prerequisites
+
+TensorPLS depends on several R packages.  
+Most will be installed automatically with `devtools::install_github()`.  
+
+**Note:** `mixOmics` is hosted on **Bioconductor**, so you need to install it manually first:
+
+```r
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("mixOmics")
+```
+# Installation
+
+To install TensorPLS from GitHub, use the [`devtools`](https://cran.r-project.org/package=devtools) package:
+
+```r
+# Install devtools if not already installed
+install.packages("devtools")
+
+# Install TensorPLS from GitHub
+devtools::install_github("alejanner/TensorPLS")
+```
 
 ## Why TensorPLS?
 
