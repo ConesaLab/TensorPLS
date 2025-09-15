@@ -40,7 +40,7 @@ TensorPLS natively handles **3D arrays** (tensors) that encode multiple modes
 ### Partial Least Squares (PLS) & N-PLS-DA
 PLS finds latent components by **maximizing the covariance between `X` (predictors) and `Y` (response)**, not just variance in `X`.  
 <p align="center">
-  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/PLSDA.png" alt="PLS-DA" width="600">
+  <img src="https://github.com/alejanner/TensorPLS/blob/main/man/figures/PLSDA.png" alt="PLS-DA" width="400">
 </p>
 In **PLS-DA**, `Y` encodes class membership (e.g., one-hot/dummy coding).  
 **N-PLS-DA** extends PLS-DA to **multi-way (tensor) `X`**, extracting components that respect the tensor modes.
