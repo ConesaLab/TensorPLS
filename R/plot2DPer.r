@@ -1,7 +1,6 @@
-#' Plot Top-N VIP2D with Case/Control strip and permutation p-values 
+#' Plot Top-N VIP2D with Case/Control strip and permutation p-values
 #'
-#
-#'
+#' @export
 plot_vip2d_with_groups_nogaps <- function(
     obj, X, groups,
     comp = 1, top_n = 15, threshold = 1, sep = "_",
