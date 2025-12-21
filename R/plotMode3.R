@@ -6,7 +6,7 @@
 #' @param edge     vecctors containing size of border (default(c(xlimSize,ylimSize)))
 #' @return         Invisibile, dataframe of points plotted 
 #' @export
-plot_nplsda_blockX_mode3 <- function(factors, pcs = c(1, 2),edge = c(xlimSize,ylimSize)) {
+plot_nplsda_blockX_mode3 <- function(factors, pcs = c(1, 2),edge = c(0.2,0.3)) {
   stopifnot(is.list(factors), !is.null(factors$FactorsX$Mode3))
   M3 <- factors$FactorsX$Mode3
   stopifnot(ncol(M3) >= max(pcs))
@@ -73,3 +73,5 @@ plot_nplsda_blockX_mode3 <- function(factors, pcs = c(1, 2),edge = c(xlimSize,yl
 #plot_nplsda_blockX_mode3(MetabolomicsFactors,edge = c(0.2,0.3))
 #MetabolomicsFactors
 #PosFactors
+#GEFactors = compute_npls_factors(X = fullarrayintersectionGElist, Y = outcomedummyarray136,ncomp = 2 )
+#plot_nplsda_blockX_mode3(GEFactors,edge = c(0.2,0.3))

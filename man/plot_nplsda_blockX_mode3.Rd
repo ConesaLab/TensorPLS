@@ -4,7 +4,7 @@
 \alias{plot_nplsda_blockX_mode3}
 \title{Plot Block X Mode 3}
 \usage{
-plot_nplsda_blockX_mode3(factors, pcs = c(1, 2), edge = c(xlimSize, ylimSize))
+plot_nplsda_blockX_mode3(factors, pcs = c(1, 2), edge = c(0.2, 0.3))
 }
 \arguments{
 \item{factors}{Object returned from compute_npls_factors
