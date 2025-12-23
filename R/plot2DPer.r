@@ -218,13 +218,17 @@ plot_vip2d_with_groups_nogaps <- function(
   })
   tiles <- dplyr::bind_rows(rows_list)
   
-  # NO-GAPS: per-time y order shared by both panels
-  ord <- df_top |>
+  # ORDER PER-FACET (corretto): y ordinato dentro ogni timepoint
+# richiede: tidytext
+  df_top <- df_top |>
     dplyr::group_by(time) |>
-    dplyr::arrange(dplyr::desc(VIP), .by_group = TRUE) |>
-    dplyr::mutate(y_fac = factor(feature, levels = rev(unique(feature))))
-  df_top <- dplyr::left_join(df_top, dplyr::select(ord, feature, time, y_fac), by = c("feature","time"))
-  tiles  <- dplyr::left_join(tiles,  dplyr::select(ord, feature, time, y_fac), by = c("feature","time"))
+    dplyr::mutate(y_fac = tidytext::reorder_within(feature, VIP, time)) |>
+    dplyr::ungroup()
+
+  tiles <- tiles |>
+    dplyr::left_join(dplyr::select(df_top, feature, time, y_fac),
+                     by = c("feature","time"))
+
   
   #  Left: lollipop (orange bars; green points if significant)
   orange <- "#F28E2B"
