@@ -218,8 +218,10 @@ plot_vip2d_with_groups_nogaps <- function(
   })
   tiles <- dplyr::bind_rows(rows_list)
   
-  # ORDER PER-FACET (corretto): y ordinato dentro ogni timepoint
-# richiede: tidytext
+  if (!requireNamespace("tidytext", quietly = TRUE)) {
+  stop("Please install 'tidytext' (needed for reorder_within/scale_y_reordered).")
+}
+  # ORDER PER-FACET 
   df_top <- df_top |>
     dplyr::group_by(time) |>
     dplyr::mutate(y_fac = tidytext::reorder_within(feature, VIP, time)) |>
@@ -240,7 +242,7 @@ plot_vip2d_with_groups_nogaps <- function(
     ggplot2::geom_point(size = 2.2, color = orange) +
     ggplot2::geom_vline(xintercept = threshold, linetype = 2) +
     ggplot2::facet_wrap(~ time, scales = "free_y") +
-    ggplot2::scale_y_discrete(drop = TRUE) +
+    tidytext::scale_y_reordered() +    
     ggplot2::labs(title = sprintf("VIP2D — Top %d per timepoint (Component %d)", top_n, comp),
                   x = "VIP score", y = NULL) +
     ggplot2::theme_minimal(base_size = 11)
